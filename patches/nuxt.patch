@@ -1,0 +1,28 @@
+diff --git a/dist/app/composables/router.js b/dist/app/composables/router.js
+index d010b92aacdcdb1a9aaedf865cdc6edfc559104c..76add53a16a3d5b910b57aa29a06f7c09119b913 100644
+--- a/dist/app/composables/router.js
++++ b/dist/app/composables/router.js
+@@ -109,6 +109,7 @@ export const navigateTo = (to, options) => {
+       const fullPath = typeof to === "string" || isExternal ? toPath : router.resolve(to).fullPath || "/";
+       const location2 = isExternal ? toPath : joinURL(useRuntimeConfig().app.baseURL, fullPath);
+       const redirect = async function(response) {
++        console.log('Redirect was called')
+         await nuxtApp.callHook("app:redirected");
+         const encodedLoc = location2.replace(URL_QUOTE_RE, "%22");
+         const encodedHeader = encodeURL(location2, isExternalHost);
+@@ -120,7 +121,14 @@ export const navigateTo = (to, options) => {
+         return response;
+       };
+       if (!isExternal && inMiddleware) {
+-        router.afterEach((final) => final.fullPath === fullPath ? redirect(false) : void 0);
++        router.afterEach((final) => {
++          console.log({
++            'fullPath': fullPath,
++            'final.fullPath': final.fullPath,
++            'final.fullPath === fullPath': final.fullPath === fullPath,
++          })
++          return final.fullPath === fullPath ? redirect(false) : void 0
++        });
+         return to;
+       }
+       return redirect(!inMiddleware ? void 0 : (
