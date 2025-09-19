@@ -1,25 +1,28 @@
 diff --git a/dist/app/composables/router.js b/dist/app/composables/router.js
-index d010b92aacdcdb1a9aaedf865cdc6edfc559104c..76add53a16a3d5b910b57aa29a06f7c09119b913 100644
+index d010b92aacdcdb1a9aaedf865cdc6edfc559104c..9070e6b5e57ee92daf2a201a7e9d7c9221b80ce0 100644
 --- a/dist/app/composables/router.js
 +++ b/dist/app/composables/router.js
 @@ -109,6 +109,7 @@ export const navigateTo = (to, options) => {
        const fullPath = typeof to === "string" || isExternal ? toPath : router.resolve(to).fullPath || "/";
        const location2 = isExternal ? toPath : joinURL(useRuntimeConfig().app.baseURL, fullPath);
        const redirect = async function(response) {
-+        console.log('Redirect was called')
++        console.log('Redirect was called', { fullPath, response, isExternal, inMiddleware })
          await nuxtApp.callHook("app:redirected");
          const encodedLoc = location2.replace(URL_QUOTE_RE, "%22");
          const encodedHeader = encodeURL(location2, isExternalHost);
-@@ -120,7 +121,14 @@ export const navigateTo = (to, options) => {
+@@ -120,7 +121,17 @@ export const navigateTo = (to, options) => {
          return response;
        };
        if (!isExternal && inMiddleware) {
 -        router.afterEach((final) => final.fullPath === fullPath ? redirect(false) : void 0);
++        console.log('Scheduling router.afterEach')
 +        router.afterEach((final) => {
-+          console.log({
++          console.log('router.afterEach was called', {
 +            'fullPath': fullPath,
 +            'final.fullPath': final.fullPath,
 +            'final.fullPath === fullPath': final.fullPath === fullPath,
++            isExternal,
++            inMiddleware,
 +          })
 +          return final.fullPath === fullPath ? redirect(false) : void 0
 +        });
